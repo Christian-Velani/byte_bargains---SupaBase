@@ -1,8 +1,8 @@
 // ignore_for_file: must_be_immutable, use_key_in_widget_constructors
 
 import 'package:byte_bargains/styles.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
 
@@ -102,80 +102,81 @@ class JogoPequenoHorizontal extends StatefulWidget {
 }
 
 class _JogoPequenoHorizontalState extends State<JogoPequenoHorizontal> {
-  final db = FirebaseFirestore.instance;
+  // final db = FirebaseFirestore.instance;
   IconData icone = Icons.favorite_border;
   Color cor = Colors.grey;
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        stream: db
-            .collection("Listas de Desejos")
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const CircularProgressIndicator();
-          var data2 = snapshot.data!.data();
-          List<dynamic> jogosDesejados = data2!["Jogos"];
-          if (jogosDesejados.contains(widget.nome)) {
-            icone = Icons.favorite;
-          } else {
-            icone = Icons.favorite_border;
-          }
-          return SizedBox(
-            width: 384,
-            child: Row(
-              children: [
-                GestureDetector(
-                  child: Container(
-                    margin: const EdgeInsets.all(5),
-                    height: 100,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white),
-                    width: 100,
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.circular(5),
-                        child: widget.imagem),
-                  ),
-                  onTap: () => Navigator.of(context)
-                      .pushNamed('/Jogo', arguments: {"nomeJogo": widget.nome}),
-                ),
-                Text(widget.nome, style: textoOpenSansSemiBold),
-                const Spacer(),
-                IconButton(
-                  alignment: Alignment.centerRight,
-                  onPressed: () {
-                    if (icone == Icons.favorite_outline) {
-                      icone = Icons.favorite;
-                      cor = Colors.blue;
-                      jogosDesejados.add(widget.nome);
-                      db
-                          .collection("Listas de Desejos")
-                          .doc(FirebaseAuth.instance.currentUser!.uid)
-                          .update({"Jogos": jogosDesejados});
-                    } else {
-                      icone = Icons.favorite_outline;
-                      cor = Colors.grey;
-                      jogosDesejados.remove(widget.nome);
-                      db
-                          .collection("Listas de Desejos")
-                          .doc(FirebaseAuth.instance.currentUser!.uid)
-                          .update({"Jogos": jogosDesejados});
-                    }
-                    setState(() {});
-                  },
-                  icon: Icon(
-                    icone,
-                    color: cor,
-                  ),
-                ),
-              ],
+    return
+        // StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+        //     stream: db
+        //         .collection("Listas de Desejos")
+        //         .doc(FirebaseAuth.instance.currentUser!.uid)
+        //         .snapshots(),
+        //     builder: (context, snapshot) {
+        //       if (!snapshot.hasData) return const CircularProgressIndicator();
+        //       var data2 = snapshot.data!.data();
+        //       List<dynamic> jogosDesejados = data2!["Jogos"];
+        //       if (jogosDesejados.contains(widget.nome)) {
+        //         icone = Icons.favorite;
+        //       } else {
+        //         icone = Icons.favorite_border;
+        //       }
+        //       return
+        SizedBox(
+      width: 384,
+      child: Row(
+        children: [
+          GestureDetector(
+            child: Container(
+              margin: const EdgeInsets.all(5),
+              height: 100,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5), color: Colors.white),
+              width: 100,
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5), child: widget.imagem),
             ),
-          );
-        });
+            onTap: () => Navigator.of(context)
+                .pushNamed('/Jogo', arguments: {"nomeJogo": widget.nome}),
+          ),
+          Text(widget.nome, style: textoOpenSansSemiBold),
+          const Spacer(),
+          IconButton(
+            alignment: Alignment.centerRight,
+            onPressed: () {
+              if (icone == Icons.favorite_outline) {
+                icone = Icons.favorite;
+                cor = Colors.blue;
+                // jogosDesejados.add(widget.nome);
+                // db
+                //     .collection("Listas de Desejos")
+                //     .doc(FirebaseAuth.instance.currentUser!.uid)
+                //     .update({"Jogos": jogosDesejados});
+              } else {
+                icone = Icons.favorite_outline;
+                cor = Colors.grey;
+                // jogosDesejados.remove(widget.nome);
+                // db
+                //     .collection("Listas de Desejos")
+                //     .doc(FirebaseAuth.instance.currentUser!.uid)
+                //     .update({"Jogos": jogosDesejados});
+              }
+              setState(() {});
+            },
+            icon: Icon(
+              icone,
+              color: cor,
+            ),
+          ),
+        ],
+      ),
+    );
   }
+  // );
 }
+// }
 
 class GeneroContainer extends StatelessWidget {
   String genero;

@@ -36,10 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   image_picker: ^1.0.4
   blurrycontainer: ^1.0.2
-  firebase_core: ^2.17.0
-  cloud_firestore: ^4.9.3
-  firebase_auth: ^4.12.0
-  firebase_storage: ^11.4.1
+  supabase_flutter: ^1.10.25
   conditional_builder_null_safety: ^0.0.6
 
 dev_dependencies:

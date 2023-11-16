@@ -1,9 +1,9 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously, prefer_const_constructors_in_immutables, non_constant_identifier_names
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:byte_bargains/styles.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -13,7 +13,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final FirebaseFirestore db = FirebaseFirestore.instance;
+  // final FirebaseFirestore db = FirebaseFirestore.instance;
 
   final txtNameCtrl = TextEditingController();
 
@@ -21,63 +21,63 @@ class _LoginPageState extends State<LoginPage> {
   IconData iconeSenha = Icons.visibility;
   bool escondido = true;
 
-  void Logar(BuildContext context) async {
-    if (txtNameCtrl.text.isNotEmpty && txtSenhaCtrl.text.isNotEmpty) {
-      try {
-        Navigator.of(context).pushNamed("/Principal");
-      } on FirebaseAuthException catch (e) {
-        if (e.code == "invalid-email") {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text("Erro ao logar"),
-                content: Text("Insira um E-mail válido"),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text("Ok"),
-                  ),
-                ],
-              );
-            },
-          );
-        } else if (e.code == "INVALID_LOGIN_CREDENTIALS") {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text("Erro ao logar"),
-                content: Text("Email ou senha incorretos"),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text("Ok"),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      }
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Problema ao Logar"),
-            content: Text("Insira um Email/Senha válidos"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text("Ok"),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
+  // void Logar(BuildContext context) async {
+  //   if (txtNameCtrl.text.isNotEmpty && txtSenhaCtrl.text.isNotEmpty) {
+  //     try {
+  //       Navigator.of(context).pushNamed("/Principal");
+  //     } on FirebaseAuthException catch (e) {
+  //       if (e.code == "invalid-email") {
+  //         showDialog(
+  //           context: context,
+  //           builder: (BuildContext context) {
+  //             return AlertDialog(
+  //               title: Text("Erro ao logar"),
+  //               content: Text("Insira um E-mail válido"),
+  //               actions: [
+  //                 TextButton(
+  //                   onPressed: () => Navigator.of(context).pop(),
+  //                   child: Text("Ok"),
+  //                 ),
+  //               ],
+  //             );
+  //           },
+  //         );
+  //       } else if (e.code == "INVALID_LOGIN_CREDENTIALS") {
+  //         showDialog(
+  //           context: context,
+  //           builder: (BuildContext context) {
+  //             return AlertDialog(
+  //               title: Text("Erro ao logar"),
+  //               content: Text("Email ou senha incorretos"),
+  //               actions: [
+  //                 TextButton(
+  //                   onPressed: () => Navigator.of(context).pop(),
+  //                   child: Text("Ok"),
+  //                 ),
+  //               ],
+  //             );
+  //           },
+  //         );
+  //       }
+  //     }
+  //   } else {
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: Text("Problema ao Logar"),
+  //           content: Text("Insira um Email/Senha válidos"),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () => Navigator.of(context).pop(),
+  //               child: Text("Ok"),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -159,8 +159,8 @@ class _LoginPageState extends State<LoginPage> {
                               );
                             },
                           );
-                          FirebaseAuth.instance
-                              .sendPasswordResetEmail(email: txtNameCtrl.text);
+                          // FirebaseAuth.instance
+                          //     .sendPasswordResetEmail(email: txtNameCtrl.text);
                         } else {
                           showDialog(
                             context: context,
@@ -193,7 +193,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: textoOpenSansBold,
                     ),
                     onPressed: () {
-                      Logar(context);
+                      // Logar(context);
                     }),
               ),
               SizedBox(

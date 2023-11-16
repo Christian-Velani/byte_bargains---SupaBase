@@ -4,21 +4,15 @@ import 'package:byte_bargains/jogo.dart';
 import 'package:byte_bargains/login.dart';
 import 'package:byte_bargains/perfil.dart';
 import 'package:byte_bargains/navigation.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
-const firebaseConfig = FirebaseOptions(
-    apiKey: "AIzaSyAVUhx-6R_mnMISZN1-v97FEz_tfalj3L8",
-    authDomain: "byte-bargains.firebaseapp.com",
-    projectId: "byte-bargains",
-    storageBucket: "byte-bargains.appspot.com",
-    messagingSenderId: "926471454978",
-    appId: "1:926471454978:web:ed7967f205796a4691421b",
-    measurementId: "G-MBRJN76MCL");
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: firebaseConfig);
+  await Supabase.initialize(
+      url: "https://mfkjoutdgcxorddtqqof.supabase.co",
+      anonKey:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ma2pvdXRkZ2N4b3JkZHRxcW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAxMjc5MzksImV4cCI6MjAxNTcwMzkzOX0.9yKfKbAwOfUKNuAl7go8T1DPTxZ8QDkYnhFYmVlFl7A");
   runApp(const MyApp());
 }
 

@@ -1,15 +1,12 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'styles.dart';
 
 class CadastroPage extends StatefulWidget {
   CadastroPage({super.key});
-  final user = FirebaseAuth.instance.currentUser;
 
   @override
   State<CadastroPage> createState() => _CadastroPageState();
@@ -23,7 +20,7 @@ class _CadastroPageState extends State<CadastroPage> {
   final _formKey = GlobalKey<FormState>();
   IconData iconeSenha = Icons.visibility;
   bool escondido = true;
-  final db = FirebaseFirestore.instance;
+  final supabase = Supabase.instance.client;
 
   void subirImagem() async {
     image = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -32,40 +29,35 @@ class _CadastroPageState extends State<CadastroPage> {
 
   void cadastrar() async {
     try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text,
-        password: senhaController.text,
+      final AuthResponse res = await supabase.auth
+          .signUp(email: emailController.text, password: senhaController.text);
+      final Session? session = res.session;
+      final User? user = res.user;
+
+      final bytes = await image!.readAsBytes();
+
+      final String path = await supabase.storage
+          .from('Perfil Images')
+          .uploadBinary(
+            image!.path,
+            bytes,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
+
+      final String signedUrl = await supabase.storage
+          .from('Perfil Images')
+          .createSignedUrl(image!.path, 60);
+
+      final UserResponse res2 = await supabase.auth.updateUser(
+        UserAttributes(
+          data: {'Usuário': usuarioController.text, "Imagem": signedUrl},
+        ),
       );
-      final storageRef =
-          FirebaseStorage.instance.ref().child('imagens/${image!.name}');
-      await storageRef.putFile(File(image!.path));
-      final downloadURL = await storageRef.getDownloadURL();
-
-      userCredential.user!.updatePhotoURL(downloadURL);
-
-      userCredential.user!.updateDisplayName(usuarioController.text);
-      userCredential.user!.updateEmail(emailController.text);
+      final User? updatedUser = res.user;
 
       Navigator.pop(context);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == "invalid-email") {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Cadastro Incompleto"),
-              content: Text("Insira um E-mail válido"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text("Ok"),
-                ),
-              ],
-            );
-          },
-        );
-      } else if (e.code == 'email-already-in-use') {
+    } on AuthException catch (e) {
+      if (e.statusCode == "400") {
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -81,12 +73,31 @@ class _CadastroPageState extends State<CadastroPage> {
             );
           },
         );
+      } else if (e.statusCode == "422") {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Cadastro Incompleto"),
+              content: Text("Email Inválido"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("Ok"),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        print(e.statusCode);
       }
     }
-    db
-        .collection("Listas de Desejos")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .set({"Jogos": []});
+
+    // db
+    //     .collection("Listas de Desejos")
+    //     .doc(FirebaseAuth.instance.currentUser!.uid)
+    //     .set({"Jogos": []});
   }
 
   @override

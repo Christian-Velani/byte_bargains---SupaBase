@@ -4,9 +4,9 @@ import 'package:byte_bargains/lista_desejos.dart';
 import 'package:byte_bargains/pesquisa.dart';
 import 'package:byte_bargains/principal.dart';
 import 'package:byte_bargains/styles.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({super.key});
@@ -16,7 +16,7 @@ class NavigationPage extends StatefulWidget {
 }
 
 class _NavigationPageState extends State<NavigationPage> {
-  final db = FirebaseFirestore.instance;
+  // final db = FirebaseFirestore.instance;
   int indexPaginaAtual = 0;
   @override
   Widget build(BuildContext context) {
@@ -32,17 +32,18 @@ class _NavigationPageState extends State<NavigationPage> {
             width: 100,
             child: GestureDetector(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: Image.network(
-                  FirebaseAuth.instance.currentUser!.photoURL!,
-                  fit: BoxFit.fill,
-                ),
-              ),
+                  borderRadius: BorderRadius.circular(50), child: Text("Teste")
+                  // Image.network(
+                  //   FirebaseAuth.instance.currentUser!.photoURL!,
+                  //   fit: BoxFit.fill,
+                  // ),
+                  ),
               onTap: () => Navigator.of(context).pushNamed("/Perfil"),
             ),
           ),
           title: Text(
-            "Olá, ${FirebaseAuth.instance.currentUser!.displayName}",
+            "Olá, Teste",
+            // ${FirebaseAuth.instance.currentUser!.displayName}",
             style: textoOpenSansSemiBold,
           ),
         ),
