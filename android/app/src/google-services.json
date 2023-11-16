@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1060388765263",
+    "project_id": "bytebargains-61f1e",
+    "storage_bucket": "bytebargains-61f1e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1060388765263:android:3e7c835e56386c3a02343a",
+        "android_client_info": {
+          "package_name": "com.cjl.byte_bargains"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYtI828ak7q5Qt45cCMzWRp1v7oL6mMGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
