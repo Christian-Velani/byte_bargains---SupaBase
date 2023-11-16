@@ -7,12 +7,13 @@ import 'package:byte_bargains/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
-      url: "https://mfkjoutdgcxorddtqqof.supabase.co",
+      url: "https://piienbbhsvnkpvzdslum.supabase.co",
       anonKey:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ma2pvdXRkZ2N4b3JkZHRxcW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAxMjc5MzksImV4cCI6MjAxNTcwMzkzOX0.9yKfKbAwOfUKNuAl7go8T1DPTxZ8QDkYnhFYmVlFl7A");
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpaWVuYmJoc3Zua3B2emRzbHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAxNDE5NTksImV4cCI6MjAxNTcxNzk1OX0.MKdVwtmEt2aOwNU7ScwsjgpvukxdJmquIH9hfWyUvVU",
+      authFlowType: AuthFlowType.pkce);
   runApp(const MyApp());
 }
 

@@ -3,6 +3,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:byte_bargains/styles.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,7 +14,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // final FirebaseFirestore db = FirebaseFirestore.instance;
+  final supabase = Supabase.instance.client;
 
   final txtNameCtrl = TextEditingController();
 
@@ -21,63 +22,53 @@ class _LoginPageState extends State<LoginPage> {
   IconData iconeSenha = Icons.visibility;
   bool escondido = true;
 
-  // void Logar(BuildContext context) async {
-  //   if (txtNameCtrl.text.isNotEmpty && txtSenhaCtrl.text.isNotEmpty) {
-  //     try {
-  //       Navigator.of(context).pushNamed("/Principal");
-  //     } on FirebaseAuthException catch (e) {
-  //       if (e.code == "invalid-email") {
-  //         showDialog(
-  //           context: context,
-  //           builder: (BuildContext context) {
-  //             return AlertDialog(
-  //               title: Text("Erro ao logar"),
-  //               content: Text("Insira um E-mail válido"),
-  //               actions: [
-  //                 TextButton(
-  //                   onPressed: () => Navigator.of(context).pop(),
-  //                   child: Text("Ok"),
-  //                 ),
-  //               ],
-  //             );
-  //           },
-  //         );
-  //       } else if (e.code == "INVALID_LOGIN_CREDENTIALS") {
-  //         showDialog(
-  //           context: context,
-  //           builder: (BuildContext context) {
-  //             return AlertDialog(
-  //               title: Text("Erro ao logar"),
-  //               content: Text("Email ou senha incorretos"),
-  //               actions: [
-  //                 TextButton(
-  //                   onPressed: () => Navigator.of(context).pop(),
-  //                   child: Text("Ok"),
-  //                 ),
-  //               ],
-  //             );
-  //           },
-  //         );
-  //       }
-  //     }
-  //   } else {
-  //     showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return AlertDialog(
-  //           title: Text("Problema ao Logar"),
-  //           content: Text("Insira um Email/Senha válidos"),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.of(context).pop(),
-  //               child: Text("Ok"),
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     );
-  //   }
-  // }
+  void Logar(BuildContext context) async {
+    if (txtNameCtrl.text.isNotEmpty && txtSenhaCtrl.text.isNotEmpty) {
+      try {
+        final AuthResponse res = await supabase.auth.signInWithPassword(
+          email: txtNameCtrl.text,
+          password: txtSenhaCtrl.text,
+        );
+        Navigator.of(context).pushNamed("/Principal");
+      } on AuthException catch (e) {
+        if (e.statusCode == "400") {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Problema ao Logar"),
+                content: Text("Email/Senha incorreto"),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text("Ok"),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          print(e);
+        }
+      }
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Problema ao Logar"),
+            content: Text("Insira um Email/Senha válidos"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text("Ok"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,57 +125,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               Container(
-                alignment: Alignment.center,
-                child: RichText(
-                  text: TextSpan(
-                    text: "Esqueceu a senha?",
-                    style: textoOpenSansRegular,
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        if (txtNameCtrl.text.isNotEmpty) {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text("Email Enviado"),
-                                content: Text(
-                                    "Se o ${txtNameCtrl.text} for um email cadastro, foi enviado um email para recuperação da senha"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                    child: Text("Ok"),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                          // FirebaseAuth.instance
-                          //     .sendPasswordResetEmail(email: txtNameCtrl.text);
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text("Recuperar Senha"),
-                                content: Text(
-                                    "Para Recuperar a senha insira um email no campo Email"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                    child: Text("Ok"),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        }
-                      },
-                  ),
-                ),
-              ),
-              Container(
                 margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
                 width: double.infinity,
                 child: ElevatedButton(
@@ -193,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: textoOpenSansBold,
                     ),
                     onPressed: () {
-                      // Logar(context);
+                      Logar(context);
                     }),
               ),
               SizedBox(

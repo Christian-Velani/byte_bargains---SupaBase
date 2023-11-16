@@ -29,31 +29,19 @@ class _CadastroPageState extends State<CadastroPage> {
 
   void cadastrar() async {
     try {
-      final AuthResponse res = await supabase.auth
+      await supabase.auth
           .signUp(email: emailController.text, password: senhaController.text);
-      final Session? session = res.session;
-      final User? user = res.user;
 
-      final bytes = await image!.readAsBytes();
-
-      final String path = await supabase.storage
-          .from('Perfil Images')
-          .uploadBinary(
-            image!.path,
-            bytes,
-            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+      await supabase.storage.from('Avatares').upload(
+            image!.name,
+            File(image!.path),
           );
 
-      final String signedUrl = await supabase.storage
-          .from('Perfil Images')
-          .createSignedUrl(image!.path, 60);
-
-      final UserResponse res2 = await supabase.auth.updateUser(
+      await supabase.auth.updateUser(
         UserAttributes(
-          data: {'Usuário': usuarioController.text, "Imagem": signedUrl},
+          data: {'Usuário': usuarioController.text, "Imagem": image!.name},
         ),
       );
-      final User? updatedUser = res.user;
 
       Navigator.pop(context);
     } on AuthException catch (e) {
@@ -89,15 +77,8 @@ class _CadastroPageState extends State<CadastroPage> {
             );
           },
         );
-      } else {
-        print(e.statusCode);
       }
     }
-
-    // db
-    //     .collection("Listas de Desejos")
-    //     .doc(FirebaseAuth.instance.currentUser!.uid)
-    //     .set({"Jogos": []});
   }
 
   @override

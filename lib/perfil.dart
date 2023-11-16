@@ -2,20 +2,20 @@
 
 import 'package:byte_bargains/login.dart';
 import 'package:byte_bargains/styles.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PerfilPage extends StatelessWidget {
-  // final db = FirebaseFirestore.instance;
+  final supabase = Supabase.instance.client;
 
-  // void Logout() async {
-  //   await FirebaseAuth.instance.signOut();
-  // }
+  void Logout() async {
+    await supabase.auth.signOut();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final user = supabase.auth.currentUser;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -47,25 +47,24 @@ class PerfilPage extends StatelessWidget {
                     height: 100,
                     width: 100,
                     child: ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
-                        child: Text("Teste")
-                        // Image.network(
-                        //   FirebaseAuth.instance.currentUser!.photoURL!,
-                        //   fit: BoxFit.fill,
-                        // ),
-                        ),
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.network(
+                        supabase.storage
+                            .from("Avatares")
+                            .getPublicUrl(user!.userMetadata!["Imagem"]),
+                        fit: BoxFit.fill,
+                      ),
+                    ),
                   ),
                 ),
                 Column(
                   children: [
                     Text(
-                      "Teste",
-                      // FirebaseAuth.instance.currentUser!.displayName!,
+                      user.userMetadata!["Usuário"],
                       style: textoOpenSansBold,
                     ),
                     Text(
-                      "Teste",
-                      // FirebaseAuth.instance.currentUser!.email!,
+                      user.email!,
                       style: textoOpenSansRegularPequeno,
                     )
                   ],
@@ -100,7 +99,7 @@ class PerfilPage extends StatelessWidget {
                 width: 250,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Logout();
+                    Logout();
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(builder: (context) => LoginPage()),
                       (Route<dynamic> route) => false,

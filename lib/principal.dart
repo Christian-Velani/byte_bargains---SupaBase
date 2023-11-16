@@ -1,105 +1,120 @@
 // ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors
-
-import 'dart:math';
-
+import 'package:byte_bargains/meus_widgets.dart';
 import 'package:byte_bargains/styles.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import 'meus_widgets.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PrincipalPage extends StatelessWidget {
-  // final db = FirebaseFirestore.instance;
+  final supabase = Supabase.instance.client;
 
   @override
   Widget build(BuildContext context) {
-    return
-        // StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        //   stream: db
-        //       .collection("Listas de Desejos")
-        //       .doc(FirebaseAuth.instance.currentUser!.uid)
-        //       .snapshots(),
-        //   builder: (context, snapshot2) {
-        //     if (!snapshot2.hasData) return CircularProgressIndicator();
-        //     var data2 = snapshot2.data!.data();
-        //     List<dynamic> jogosDesejados = data2!["Jogos"];
-        //     List<int> numeros = [];
-        //     if (jogosDesejados.length >= 5) {
-        //       var rng = Random();
-        //       for (var i = 0; i < 5; i++) {
-        //         int numeroGerado = rng.nextInt(jogosDesejados.length);
-        //         while (numeros.contains(numeroGerado)) {
-        //           numeroGerado = rng.nextInt(jogosDesejados.length);
-        //         }
-        //         numeros.add(numeroGerado);
-        //       }
-        //     } else {
-        //       var rng = Random();
-        //       for (var i = 0; i < jogosDesejados.length; i++) {
-        //         int numeroGerado = rng.nextInt(jogosDesejados.length);
-        //         while (numeros.contains(numeroGerado)) {
-        //           numeroGerado = rng.nextInt(jogosDesejados.length);
-        //         }
-        //         numeros.add(numeroGerado);
-        //       }
-        //     }
-        //     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        //       stream: db
-        //           .collection("Jogos")
-        //           .where("Nome do Jogo",
-        //               whereIn: (numeros
-        //                   .map((numero) => jogosDesejados[numero])
-        //                   .toList()))
-        //           .snapshots(),
-        //       builder: (context, snapshot) {
-        //         if (!snapshot.hasData) return CircularProgressIndicator();
-        //         var data = snapshot.data!.docs;
-        //         return
-        Column(
-      children: [
-        Container(
-          alignment: Alignment.centerLeft,
-          margin: EdgeInsets.fromLTRB(10, 20, 0, 0),
-          child: Text(
-            "Vamos explorar",
-            style: textoOpenSansRegularPequeno,
-          ),
-        ),
-        Container(
-          alignment: Alignment.centerLeft,
-          margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
-          child: Text(
-            "Jogos",
-            style: textoNotoSansBoldGrande,
-          ),
-        ),
-        SizedBox(
-          height: 500,
-          child: ListView(
-              padding: EdgeInsets.all(20),
-              scrollDirection: Axis.horizontal,
-              children: []
-              // data
-              //     .map(
-              //       (doc) => JogoGrande(
-              //           Image.network(
-              //             doc["Imagem"],
-              //             fit: BoxFit.fill,
-              //           ),
-              //           doc["Nome do Jogo"],
-              //           "Da sua lista de Desejos"),
-              //     )
-              //     .toList(),
-              ),
-        )
-      ],
-    );
-  }
-  // ,
-  // );
-}
+    final User user = supabase.auth.currentUser!;
+    Future<List<dynamic>> pegarListaDesejos() async {
+      final listaDesejos = await supabase
+          .from("Listas de Desejos")
+          .select("jogoId")
+          .eq("idUsuario", user.id);
+      return listaDesejos;
+    }
+
+    Future<Map<String, Jogo>> buscarJogosPrincipal(List<String> jogos) async {
+      Map<String, Jogo> jogosFinais = {};
+      final informacoesJogo = await supabase
+          .from("Jogos")
+          .select('''nomeJogo, imagem, descricao''').in_("nomeJogo", jogos);
+      final generosJogo = await supabase
+          .from("GenerosJogos")
+          .select('''idGenero, idJogo''').in_("idJogo", jogos);
+      final lojasJogo = await supabase
+          .from("LojasPreços")
+          .select('''nomeLoja, precoInicial, desconto, precoFinal, idJogo''').in_(
+              "idJogo", jogos);
+      jogos.forEach((jogo) {
+        jogosFinais[jogo] = Jogo("", "", "", [], []);
+      });
+      informacoesJogo.forEach((infoJogo) {
+        jogosFinais[infoJogo["nomeJogo"]]!.nome = infoJogo["nomeJogo"];
+        jogosFinais[infoJogo["nomeJogo"]]!.descricao = infoJogo["descricao"];
+        jogosFinais[infoJogo["nomeJogo"]]!.imagem = infoJogo["imagem"];
+      });
+      lojasJogo.forEach(
+        (loja) {
+          jogosFinais[loja["idJogo"]]!.lojas.add(
+            {
+              "loja": {
+                "loja": loja["nomeloja"],
+                "precoInicial": loja["precoInicial"],
+                "desconto": loja["desconto"],
+                "precoFinal": loja["precoFinal"]
+              }
+            },
+          );
+        },
+      );
+      generosJogo.forEach((genero) {
+        jogosFinais[genero["idJogo"]]!.generos.add(genero['idGenero']);
+      });
+      return jogosFinais;
+    }
+
+    return FutureBuilder(
+        future: pegarListaDesejos(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return CircularProgressIndicator();
+          var data = snapshot.data;
+          List<String> listaJogosDesejados = [];
+          data!.forEach((info) => listaJogosDesejados.add(info["jogoId"]));
+          return FutureBuilder(
+              future: buscarJogosPrincipal(listaJogosDesejados),
+              builder: ((context, snapshot) {
+                if (!snapshot.hasData) return CircularProgressIndicator();
+                var data2 = snapshot.data;
+                return Column(
+                  children: [
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      margin: EdgeInsets.fromLTRB(10, 20, 0, 0),
+                      child: Text(
+                        "Vamos explorar",
+                        style: textoOpenSansRegularPequeno,
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                      child: Text(
+                        "Jogos",
+                        style: textoNotoSansBoldGrande,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 500,
+                      child: ListView.builder(
+                        itemCount: data2!.length,
+                        padding: EdgeInsets.all(20),
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          Jogo jogo = data2.values.elementAt(index);
+                          return JogoGrande(
+                              Image.network(
+                                jogo.imagem,
+                                fit: BoxFit.fill,
+                              ),
+                              jogo.nome,
+                              "Da sua lista de Desejos");
+                        },
+                      ),
+                    )
+                  ],
+                );
+              }));
+          // ,
+          // );
+        });
 // ,
 // );
 // }
 // }
+  }
+}

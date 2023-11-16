@@ -62,7 +62,7 @@ class JogoGrande extends StatelessWidget {
 }
 
 class JogoPequeno extends StatelessWidget {
-  Image imagem;
+  String imagem;
   String nome;
 
   JogoPequeno(this.imagem, this.nome, {super.key});
@@ -79,7 +79,11 @@ class JogoPequeno extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5), color: Colors.white),
             width: 100,
             child: ClipRRect(
-                borderRadius: BorderRadius.circular(5), child: imagem),
+                borderRadius: BorderRadius.circular(5),
+                child: Image.network(
+                  imagem,
+                  fit: BoxFit.fill,
+                )),
           ),
           onTap: () => Navigator.of(context)
               .pushNamed('/Jogo', arguments: {"nomeJogo": nome}),
@@ -285,10 +289,13 @@ class LojaPreco extends StatelessWidget {
 }
 
 class Jogo {
-  Image imagem;
+  String imagem;
   String nome;
+  String descricao;
+  List<String> generos;
+  List<Map<String, dynamic>> lojas;
 
-  Jogo(this.imagem, this.nome);
+  Jogo(this.imagem, this.nome, this.descricao, this.lojas, this.generos);
 }
 
 enum Estado { normal, desconto, indisponivel }

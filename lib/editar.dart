@@ -1,14 +1,12 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 import 'dart:io';
-// import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'styles.dart';
 
 class EditarPage extends StatefulWidget {
   EditarPage({super.key});
-  // final user = FirebaseAuth.instance.currentUser;
 
   @override
   State<EditarPage> createState() => _EditarPageState();
@@ -16,9 +14,7 @@ class EditarPage extends StatefulWidget {
 
 class _EditarPageState extends State<EditarPage> {
   XFile? image;
-  // final usuarioController = TextEditingController(
-  //     text: FirebaseAuth.instance.currentUser!.displayName);
-  // String emailAtual = FirebaseAuth.instance.currentUser!.email!;
+  final supabase = Supabase.instance.client;
   final senhaController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   IconData iconeSenha = Icons.visibility;
@@ -29,36 +25,35 @@ class _EditarPageState extends State<EditarPage> {
     setState(() {});
   }
 
-  // ignore: non_constant_identifier_names
-  // void AtualizarCadastro() async {
-  //   if (image != null) {
-  //     // final storageRef =
-  //     //     FirebaseStorage.instance.ref().child('imagens/${image!.name}');
-  //   //   await storageRef.putFile(File(image!.path));
-  //   //   final downloadURL = await storageRef.getDownloadURL();
-
-  //   //   FirebaseAuth.instance.currentUser!.updatePhotoURL(downloadURL);
-  //   // } else {
-  //   //   final downloadURL = FirebaseAuth.instance.currentUser!.photoURL!;
-
-  //   //   FirebaseAuth.instance.currentUser!.updatePhotoURL(downloadURL);
-  //   // }
-
-  //   // FirebaseAuth.instance.currentUser!
-  //   //     .updateDisplayName(usuarioController.text);
-
-  //   // await FirebaseAuth.instance.currentUser!.reload();
-
-  //   if (senhaController.text.isNotEmpty) {
-  //     await FirebaseAuth.instance.currentUser!
-  //         .updatePassword(senhaController.text);
-  //   }
-
-  //   Navigator.of(context).pop();
-  // }
-
   @override
   Widget build(BuildContext context) {
+    final usuarioController = TextEditingController(
+        text: supabase.auth.currentUser!.userMetadata!["Usuário"]);
+
+    void AtualizarCadastro() async {
+      final imagem;
+      if (image != null) {
+        await supabase.storage.from('Avatares').upload(
+              image!.name,
+              File(image!.path),
+            );
+        imagem = image!.name;
+      } else {
+        imagem = supabase.auth.currentUser!.userMetadata!["Imagem"];
+      }
+
+      if (senhaController.text.isNotEmpty) {
+        await supabase.auth.updateUser(UserAttributes(
+          password: senhaController.text,
+        ));
+      }
+
+      await supabase.auth.updateUser(UserAttributes(
+          data: {"Usuário": usuarioController.text, "Imagem": imagem}));
+
+      Navigator.of(context).pop();
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -77,27 +72,29 @@ class _EditarPageState extends State<EditarPage> {
                   height: 140,
                   width: 140,
                   child: GestureDetector(
-                      onTap: subirImagem,
-                      child: image != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(70),
-                              child: Image.file(
-                                File(image!.path),
-                                height: double.infinity,
-                                width: double.infinity,
-                                fit: BoxFit.fill,
-                              ),
-                            )
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(70),
-                              child: Text("Texo Provisório")
-                              // Image.network(
-                              //   // FirebaseAuth.instance.currentUser!.photoURL!,
-                              //   height: double.infinity,
-                              //   width: double.infinity,
-                              //   fit: BoxFit.fill,
-                              // ),
-                              )),
+                    onTap: subirImagem,
+                    child: image != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(70),
+                            child: Image.file(
+                              File(image!.path),
+                              height: double.infinity,
+                              width: double.infinity,
+                              fit: BoxFit.fill,
+                            ),
+                          )
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(70),
+                            child: Image.network(
+                              supabase.storage.from("Avatares").getPublicUrl(
+                                  supabase.auth.currentUser!
+                                      .userMetadata!["Imagem"]),
+                              height: double.infinity,
+                              width: double.infinity,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                  ),
                 ),
                 Container(
                   margin: EdgeInsets.fromLTRB(0, 20, 0, 20),
@@ -111,7 +108,7 @@ class _EditarPageState extends State<EditarPage> {
                           ? null
                           : 'O nome de usuário tem que ser entre 6 e 30 caracteres';
                     },
-                    // controller: usuarioController,
+                    controller: usuarioController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "Usuário",
@@ -193,7 +190,7 @@ class _EditarPageState extends State<EditarPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        // AtualizarCadastro();
+                        AtualizarCadastro();
                       }
                     },
                     child: Text(
