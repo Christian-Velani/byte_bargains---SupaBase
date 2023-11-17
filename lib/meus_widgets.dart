@@ -5,6 +5,7 @@ import 'package:byte_bargains/styles.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class JogoGrande extends StatelessWidget {
   Image imagem;
@@ -95,52 +96,65 @@ class JogoPequeno extends StatelessWidget {
 }
 
 class JogoPequenoHorizontal extends StatefulWidget {
-  final Image imagem;
+  final String imagem;
   final String nome;
+  final List<String> listaDesejos;
 
   const JogoPequenoHorizontal(
-      {super.key, required this.imagem, required this.nome});
+      {super.key,
+      required this.imagem,
+      required this.nome,
+      required this.listaDesejos});
 
   @override
   State<JogoPequenoHorizontal> createState() => _JogoPequenoHorizontalState();
 }
 
 class _JogoPequenoHorizontalState extends State<JogoPequenoHorizontal> {
-  // final db = FirebaseFirestore.instance;
-  IconData icone = Icons.favorite_border;
+  final supabase = Supabase.instance.client;
+  IconData icone = Icons.favorite_outline;
   Color cor = Colors.grey;
-
   @override
   Widget build(BuildContext context) {
-    return
-        // StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        //     stream: db
-        //         .collection("Listas de Desejos")
-        //         .doc(FirebaseAuth.instance.currentUser!.uid)
-        //         .snapshots(),
-        //     builder: (context, snapshot) {
-        //       if (!snapshot.hasData) return const CircularProgressIndicator();
-        //       var data2 = snapshot.data!.data();
-        //       List<dynamic> jogosDesejados = data2!["Jogos"];
-        //       if (jogosDesejados.contains(widget.nome)) {
-        //         icone = Icons.favorite;
-        //       } else {
-        //         icone = Icons.favorite_border;
-        //       }
-        //       return
-        SizedBox(
-      width: 384,
+    if (widget.listaDesejos.contains(widget.nome)) {
+      icone = Icons.favorite;
+      cor = Colors.blue;
+    }
+
+    final User user = supabase.auth.currentUser!;
+
+    Future<void> atualizarListaDesejos(String tipo, String jogo) async {
+      if (tipo == "adicionar") {
+        final response = await supabase
+            .from("Listas de Desejos")
+            .insert({"idUsuario": user.id, "jogoId": jogo});
+        print(response);
+      } else if (tipo == "remover") {
+        final response = await supabase
+            .from("Listas de Desejos")
+            .delete()
+            .match({"idUsario": user.id, "jogoId": jogo});
+        print(response);
+      }
+    }
+
+    return SizedBox(
+      width: 500,
       child: Row(
         children: [
           GestureDetector(
             child: Container(
               margin: const EdgeInsets.all(5),
-              height: 100,
+              height: 70,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5), color: Colors.white),
-              width: 100,
+              width: 70,
               child: ClipRRect(
-                  borderRadius: BorderRadius.circular(5), child: widget.imagem),
+                  borderRadius: BorderRadius.circular(5),
+                  child: Image.network(
+                    widget.imagem,
+                    fit: BoxFit.fill,
+                  )),
             ),
             onTap: () => Navigator.of(context)
                 .pushNamed('/Jogo', arguments: {"nomeJogo": widget.nome}),
@@ -153,19 +167,11 @@ class _JogoPequenoHorizontalState extends State<JogoPequenoHorizontal> {
               if (icone == Icons.favorite_outline) {
                 icone = Icons.favorite;
                 cor = Colors.blue;
-                // jogosDesejados.add(widget.nome);
-                // db
-                //     .collection("Listas de Desejos")
-                //     .doc(FirebaseAuth.instance.currentUser!.uid)
-                //     .update({"Jogos": jogosDesejados});
+                atualizarListaDesejos("adicionar", widget.nome);
               } else {
                 icone = Icons.favorite_outline;
                 cor = Colors.grey;
-                // jogosDesejados.remove(widget.nome);
-                // db
-                //     .collection("Listas de Desejos")
-                //     .doc(FirebaseAuth.instance.currentUser!.uid)
-                //     .update({"Jogos": jogosDesejados});
+                atualizarListaDesejos("remover", widget.nome);
               }
               setState(() {});
             },
@@ -178,9 +184,7 @@ class _JogoPequenoHorizontalState extends State<JogoPequenoHorizontal> {
       ),
     );
   }
-  // );
 }
-// }
 
 class GeneroContainer extends StatelessWidget {
   String genero;

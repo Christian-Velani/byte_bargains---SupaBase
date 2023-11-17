@@ -2,9 +2,9 @@
 
 import 'package:byte_bargains/meus_widgets.dart';
 import 'package:byte_bargains/styles.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PesquisaPage extends StatefulWidget {
   const PesquisaPage({super.key});
@@ -14,7 +14,7 @@ class PesquisaPage extends StatefulWidget {
 }
 
 class _PesquisaPageState extends State<PesquisaPage> {
-  // final db = FirebaseFirestore.instance;
+  final supabase = Supabase.instance.client;
   TextEditingController textoPesquisa = TextEditingController();
   var resultados;
   var valorPesquisado;
@@ -25,65 +25,113 @@ class _PesquisaPageState extends State<PesquisaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final User user = supabase.auth.currentUser!;
+    Future<List<dynamic>> pegarListaDesejos() async {
+      final listaDesejos = await supabase
+          .from("Listas de Desejos")
+          .select("jogoId")
+          .eq("idUsuario", user.id);
+      return listaDesejos;
+    }
+
+    Future<Map<String, Jogo>> buscarJogosPrincipal(String pesquisa) async {
+      Map<String, Jogo> jogosFinais = {};
+      final informacoesJogo = await supabase.from("Jogos").select(
+          '''nomeJogo, imagem, descricao''').like("nomeJogo", "$pesquisa%");
+      final generosJogo = await supabase
+          .from("GenerosJogos")
+          .select('''idGenero, idJogo''').like("idJogo", "$pesquisa%");
+      final lojasJogo = await supabase
+          .from("LojasPreços")
+          .select('''nomeLoja, precoInicial, desconto, precoFinal, idJogo''').like(
+              "idJogo", "$pesquisa%");
+      informacoesJogo.forEach((infoJogo) {
+        jogosFinais[infoJogo["nomeJogo"]] = Jogo("", "", "", [], []);
+      });
+      informacoesJogo.forEach((infoJogo) {
+        jogosFinais[infoJogo["nomeJogo"]]!.nome = infoJogo["nomeJogo"];
+        jogosFinais[infoJogo["nomeJogo"]]!.descricao = infoJogo["descricao"];
+        jogosFinais[infoJogo["nomeJogo"]]!.imagem = infoJogo["imagem"];
+      });
+      lojasJogo.forEach(
+        (loja) {
+          jogosFinais[loja["idJogo"]]!.lojas.add(
+            {
+              "loja": {
+                "loja": loja["nomeloja"],
+                "precoInicial": loja["precoInicial"],
+                "desconto": loja["desconto"],
+                "precoFinal": loja["precoFinal"]
+              }
+            },
+          );
+        },
+      );
+      generosJogo.forEach((genero) {
+        jogosFinais[genero["idJogo"]]!.generos.add(genero['idGenero']);
+      });
+      return jogosFinais;
+    }
+
     return ConditionalBuilder(
         condition: resultados != null,
-        builder: (context) =>
-            // StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            //   stream: db
-            //       .collection("Jogos")
-            //       .where("Nome do Jogo", isEqualTo: valorPesquisado)
-            //       .snapshots(),
-            //   builder: (context, snapshot) {
-            //     if (!snapshot.hasData) {
-            //       return CircularProgressIndicator();
-            //     }
-            //     var data = snapshot.data!.docs;
-            //     return
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: TextField(
-                      controller: textoPesquisa,
-                      onEditingComplete: () {
-                        if (textoPesquisa.text.length >= 4) {
-                          pesquisar(textoPesquisa.text);
-                        }
-                        setState(() {});
-                      },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: "Pesquisar",
-                        labelStyle: textoNotoSansBold,
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Colors.grey,
-                        ),
+        builder: (context) => FutureBuilder(
+            future: pegarListaDesejos(),
+            builder: ((context, snapshot) {
+              if (!snapshot.hasData) return CircularProgressIndicator();
+              var data = snapshot.data;
+              List<String> listaJogosDesejados = [];
+              data!.forEach((info) => listaJogosDesejados.add(info["jogoId"]));
+              return FutureBuilder(
+                  future: buscarJogosPrincipal(valorPesquisado),
+                  builder: ((context, snapshot) {
+                    if (!snapshot.hasData) return CircularProgressIndicator();
+                    var data2 = snapshot.data;
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: TextField(
+                              controller: textoPesquisa,
+                              onEditingComplete: () {
+                                pesquisar(textoPesquisa.text);
+                                setState(() {});
+                              },
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: "Pesquisar",
+                                labelStyle: textoNotoSansBold,
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          Text("Resultados da Pesquisa",
+                              style: textoNotoSansBold),
+                          SizedBox(
+                            height: 531,
+                            width: 500,
+                            child: ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              itemCount: data2!.length,
+                              itemBuilder: (context, index) {
+                                Jogo jogo = data2.values.elementAt(index);
+                                return JogoPequenoHorizontal(
+                                    imagem: jogo.imagem,
+                                    nome: jogo.nome,
+                                    listaDesejos: listaJogosDesejados);
+                              },
+                            ),
+                          )
+                        ],
                       ),
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  Text("Resultados da Pesquisa", style: textoNotoSansBold),
-                  SizedBox(
-                    height: 531,
-                    child: ListView(scrollDirection: Axis.vertical, children: []
-                        // data
-                        //     .map((doc) => JogoPequenoHorizontal(
-                        //         imagem: Image.network(
-                        //           doc["Imagem"],
-                        //           fit: BoxFit.fill,
-                        //         ),
-                        //         nome: doc['Nome do Jogo']))
-                        //     .toList()
-                        ),
-                  )
-                ],
-              ),
-            ),
-        // ;
-        // },
-        // ),
+                    );
+                  }));
+            })),
         fallback: (context) => SingleChildScrollView(
                 child: Column(children: [
               SizedBox(
@@ -91,9 +139,7 @@ class _PesquisaPageState extends State<PesquisaPage> {
                 child: TextField(
                   controller: textoPesquisa,
                   onEditingComplete: () {
-                    if (textoPesquisa.text.length >= 4) {
-                      pesquisar(textoPesquisa.text);
-                    }
+                    pesquisar(textoPesquisa.text);
                     setState(() {});
                   },
                   decoration: InputDecoration(

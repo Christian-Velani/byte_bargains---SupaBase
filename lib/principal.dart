@@ -30,8 +30,8 @@ class PrincipalPage extends StatelessWidget {
           .from("LojasPreços")
           .select('''nomeLoja, precoInicial, desconto, precoFinal, idJogo''').in_(
               "idJogo", jogos);
-      jogos.forEach((jogo) {
-        jogosFinais[jogo] = Jogo("", "", "", [], []);
+      informacoesJogo.forEach((infoJogo) {
+        jogosFinais[infoJogo["nomeJogo"]] = Jogo("", "", "", [], []);
       });
       informacoesJogo.forEach((infoJogo) {
         jogosFinais[infoJogo["nomeJogo"]]!.nome = infoJogo["nomeJogo"];
