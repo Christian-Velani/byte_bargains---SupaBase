@@ -159,7 +159,12 @@ class _JogoPequenoHorizontalState extends State<JogoPequenoHorizontal> {
             onTap: () => Navigator.of(context)
                 .pushNamed('/Jogo', arguments: {"nomeJogo": widget.nome}),
           ),
-          Text(widget.nome, style: textoOpenSansSemiBold),
+          RichText(
+            text: TextSpan(
+              text: widget.nome,
+              style: textoOpenSansSemiBold,
+            ),
+          ),
           const Spacer(),
           IconButton(
             alignment: Alignment.centerRight,
