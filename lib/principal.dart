@@ -49,7 +49,9 @@ class PrincipalPage extends StatelessWidget {
     return FutureBuilder(
         future: buscarJogosPrincipal(),
         builder: ((context, snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
           var data2 = snapshot.data;
           return Column(
             children: [

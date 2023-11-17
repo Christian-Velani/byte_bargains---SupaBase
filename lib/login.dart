@@ -22,25 +22,25 @@ class _LoginPageState extends State<LoginPage> {
   void Logar(BuildContext context) async {
     if (txtNameCtrl.text.isNotEmpty && txtSenhaCtrl.text.isNotEmpty) {
       try {
+        await supabase.auth.signInWithPassword(
+            email: txtNameCtrl.text, password: txtSenhaCtrl.text);
         Navigator.of(context).pushNamed("/Principal");
-      } on AuthException catch (e) {
-        if (e.statusCode == "400") {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text("Problema ao Logar"),
-                content: Text("Email/Senha incorreto"),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text("Ok"),
-                  ),
-                ],
-              );
-            },
-          );
-        }
+      } on AuthException {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Problema ao Logar"),
+              content: Text("Email/Senha incorreto"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("Ok"),
+                ),
+              ],
+            );
+          },
+        );
       }
     } else {
       showDialog(
@@ -116,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
+                margin: EdgeInsets.fromLTRB(0, 20, 0, 10),
                 width: double.infinity,
                 child: ElevatedButton(
                     child: Text(

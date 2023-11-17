@@ -94,7 +94,8 @@ class _JogoPageState extends State<JogoPage> {
           child: FutureBuilder(
               future: buscarJogosPrincipal(nomeJogo),
               builder: ((context, snapshot) {
-                if (!snapshot.hasData) return CircularProgressIndicator();
+                if (!snapshot.hasData)
+                  return Center(child: CircularProgressIndicator());
                 var data2 = snapshot.data;
                 return FutureBuilder(
                     future: pegarListaDesejos(),

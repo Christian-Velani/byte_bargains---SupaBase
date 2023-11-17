@@ -65,7 +65,9 @@ class ListaDesejosPage extends StatelessWidget {
     return FutureBuilder(
         future: pegarListaDesejos(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
           var data = snapshot.data;
           List<String> listaJogosDesejados = [];
           for (var info in data!) {
@@ -74,7 +76,9 @@ class ListaDesejosPage extends StatelessWidget {
           return FutureBuilder(
               future: buscarJogosPrincipal(listaJogosDesejados),
               builder: ((context, snapshot) {
-                if (!snapshot.hasData) return CircularProgressIndicator();
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
                 var data2 = snapshot.data;
                 var keys = data2!.keys;
                 for (var chave in keys) {

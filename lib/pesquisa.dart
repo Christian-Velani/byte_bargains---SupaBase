@@ -36,8 +36,11 @@ class _PesquisaPageState extends State<PesquisaPage> {
 
     Future<Map<String, Jogo>> buscarJogosPrincipal(String pesquisa) async {
       Map<String, Jogo> jogosFinais = {};
-      final informacoesJogo = await supabase.from("Jogos").select(
-          '''nomeJogo, imagem, descricao''').ilike("nomeJogo", "$pesquisa%");
+      final informacoesJogo = await supabase
+          .from("Jogos")
+          .select('''nomeJogo, imagem, descricao''')
+          .ilike("nomeJogo", "$pesquisa%")
+          .order("nomeJogo", ascending: true);
       informacoesJogo.forEach((infoJogo) {
         jogosFinais[infoJogo["nomeJogo"]] = Jogo("", "", "", [], []);
       });
@@ -54,12 +57,16 @@ class _PesquisaPageState extends State<PesquisaPage> {
         builder: (context) => FutureBuilder(
             future: buscarJogosPrincipal(valorPesquisado),
             builder: ((context, snapshot) {
-              if (!snapshot.hasData) return CircularProgressIndicator();
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              }
               var data2 = snapshot.data;
               return FutureBuilder(
                   future: pegarListaDesejos(),
                   builder: ((context, snapshot) {
-                    if (!snapshot.hasData) return CircularProgressIndicator();
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                    }
                     var data = snapshot.data;
                     List<String> listaJogosDesejados = [];
                     for (var info in data!) {

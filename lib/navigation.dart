@@ -4,10 +4,8 @@ import 'package:byte_bargains/lista_desejos.dart';
 import 'package:byte_bargains/pesquisa.dart';
 import 'package:byte_bargains/principal.dart';
 import 'package:byte_bargains/styles.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({super.key});
