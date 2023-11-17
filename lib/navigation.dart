@@ -46,7 +46,7 @@ class _NavigationPageState extends State<NavigationPage> {
             ),
           ),
           title: Text(
-            "Olá, ${user!.userMetadata!["Usuário"]}",
+            "Olá, ${user.userMetadata!["Usuário"]}",
             style: textoOpenSansSemiBold,
           ),
         ),

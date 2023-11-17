@@ -37,14 +37,7 @@ class _PesquisaPageState extends State<PesquisaPage> {
     Future<Map<String, Jogo>> buscarJogosPrincipal(String pesquisa) async {
       Map<String, Jogo> jogosFinais = {};
       final informacoesJogo = await supabase.from("Jogos").select(
-          '''nomeJogo, imagem, descricao''').like("nomeJogo", "$pesquisa%");
-      final generosJogo = await supabase
-          .from("GenerosJogos")
-          .select('''idGenero, idJogo''').like("idJogo", "$pesquisa%");
-      final lojasJogo = await supabase
-          .from("LojasPreços")
-          .select('''nomeLoja, precoInicial, desconto, precoFinal, idJogo''').like(
-              "idJogo", "$pesquisa%");
+          '''nomeJogo, imagem, descricao''').ilike("nomeJogo", "$pesquisa%");
       informacoesJogo.forEach((infoJogo) {
         jogosFinais[infoJogo["nomeJogo"]] = Jogo("", "", "", [], []);
       });
@@ -53,40 +46,25 @@ class _PesquisaPageState extends State<PesquisaPage> {
         jogosFinais[infoJogo["nomeJogo"]]!.descricao = infoJogo["descricao"];
         jogosFinais[infoJogo["nomeJogo"]]!.imagem = infoJogo["imagem"];
       });
-      lojasJogo.forEach(
-        (loja) {
-          jogosFinais[loja["idJogo"]]!.lojas.add(
-            {
-              "loja": {
-                "loja": loja["nomeloja"],
-                "precoInicial": loja["precoInicial"],
-                "desconto": loja["desconto"],
-                "precoFinal": loja["precoFinal"]
-              }
-            },
-          );
-        },
-      );
-      generosJogo.forEach((genero) {
-        jogosFinais[genero["idJogo"]]!.generos.add(genero['idGenero']);
-      });
       return jogosFinais;
     }
 
     return ConditionalBuilder(
         condition: resultados != null,
         builder: (context) => FutureBuilder(
-            future: pegarListaDesejos(),
+            future: buscarJogosPrincipal(valorPesquisado),
             builder: ((context, snapshot) {
               if (!snapshot.hasData) return CircularProgressIndicator();
-              var data = snapshot.data;
-              List<String> listaJogosDesejados = [];
-              data!.forEach((info) => listaJogosDesejados.add(info["jogoId"]));
+              var data2 = snapshot.data;
               return FutureBuilder(
-                  future: buscarJogosPrincipal(valorPesquisado),
+                  future: pegarListaDesejos(),
                   builder: ((context, snapshot) {
                     if (!snapshot.hasData) return CircularProgressIndicator();
-                    var data2 = snapshot.data;
+                    var data = snapshot.data;
+                    List<String> listaJogosDesejados = [];
+                    for (var info in data!) {
+                      listaJogosDesejados.add(info["jogoId"]);
+                    }
                     return SingleChildScrollView(
                       child: Column(
                         children: [

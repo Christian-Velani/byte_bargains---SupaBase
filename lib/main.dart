@@ -25,11 +25,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         routes: {
-          "/Cadastro": (context) => CadastroPage(),
+          "/Cadastro": (context) => const CadastroPage(),
           "/Login": (context) => LoginPage(),
           "/Perfil": (context) => PerfilPage(),
           "/Principal": (context) => const NavigationPage(),
-          "/Editar": (context) => EditarPage(),
+          "/Editar": (context) => const EditarPage(),
           "/Jogo": (context) => JogoPage(),
         },
         initialRoute: '/Login');

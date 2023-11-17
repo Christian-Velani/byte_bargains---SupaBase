@@ -9,6 +9,8 @@ class ListaDesejosPage extends StatelessWidget {
   Map<String, List<Jogo>> generosJogos = {};
   final supabase = Supabase.instance.client;
 
+  ListaDesejosPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final User user = supabase.auth.currentUser!;
@@ -66,7 +68,9 @@ class ListaDesejosPage extends StatelessWidget {
           if (!snapshot.hasData) return CircularProgressIndicator();
           var data = snapshot.data;
           List<String> listaJogosDesejados = [];
-          data!.forEach((info) => listaJogosDesejados.add(info["jogoId"]));
+          for (var info in data!) {
+            listaJogosDesejados.add(info["jogoId"]);
+          }
           return FutureBuilder(
               future: buscarJogosPrincipal(listaJogosDesejados),
               builder: ((context, snapshot) {
@@ -74,13 +78,13 @@ class ListaDesejosPage extends StatelessWidget {
                 var data2 = snapshot.data;
                 var keys = data2!.keys;
                 for (var chave in keys) {
-                  data2[chave]!.generos.forEach((genero) {
+                  for (var genero in data2[chave]!.generos) {
                     if (generosJogos[genero] == null) {
                       generosJogos[genero] = [data2[chave]!];
                     } else {
                       generosJogos[genero]!.add(data2[chave]!);
                     }
-                  });
+                  }
                 }
                 return Column(
                   children: [
@@ -111,54 +115,4 @@ class ListaDesejosPage extends StatelessWidget {
           // );
         });
   }
-
-  // StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-  //     stream: db
-  //         .collection("Listas de Desejos")
-  //         .doc(FirebaseAuth.instance.currentUser!.uid)
-  //         .snapshots(),
-  //     builder: (context, snapshot2) {
-  //       if (!snapshot2.hasData) return CircularProgressIndicator();
-  //       var data2 = snapshot2.data!.data();
-  //       List<dynamic> jogosDesejados = data2!["Jogos"];
-  //       return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-  //           stream: db
-  //               .collection("Jogos")
-  //               .where(
-  //                 "Nome do Jogo",
-  //                 whereIn: (jogosDesejados.map((jogo) => jogo).toList()),
-  //               )
-  //               .snapshots(),
-  //           builder: (context, snapshot) {
-  //             if (!snapshot.hasData) return CircularProgressIndicator();
-  //             var data = snapshot.data!.docs;
-  //             for (var doc in data) {
-  //               doc["Gêneros"].forEach((genero) {
-  //                 if (generosJogos[genero] == null) {
-  //                   generosJogos[genero] = [
-  //                     Jogo(
-  //                       Image.network(
-  //                         doc['Imagem'],
-  //                         fit: BoxFit.fill,
-  //                       ),
-  //                       doc['Nome do Jogo'],
-  //                     ),
-  //                   ];
-  //                 } else {
-  //                   generosJogos[genero]!.add(
-  //                     Jogo(
-  //                       Image.network(
-  //                         doc['Imagem'],
-  //                         fit: BoxFit.fill,
-  //                       ),
-  //                       doc['Nome do Jogo'],
-  //                     ),
-  //                   );
-  //                 }
-  //               });
-  //             }
-  //             return
-// );
-// }
-// }
 }

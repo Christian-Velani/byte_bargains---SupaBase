@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'styles.dart';
 
 class CadastroPage extends StatefulWidget {
-  CadastroPage({super.key});
+  const CadastroPage({super.key});
 
   @override
   State<CadastroPage> createState() => _CadastroPageState();

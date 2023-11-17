@@ -1,10 +1,7 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously, prefer_const_constructors_in_immutables, non_constant_identifier_names
-// import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:byte_bargains/styles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -25,10 +22,6 @@ class _LoginPageState extends State<LoginPage> {
   void Logar(BuildContext context) async {
     if (txtNameCtrl.text.isNotEmpty && txtSenhaCtrl.text.isNotEmpty) {
       try {
-        final AuthResponse res = await supabase.auth.signInWithPassword(
-          email: txtNameCtrl.text,
-          password: txtSenhaCtrl.text,
-        );
         Navigator.of(context).pushNamed("/Principal");
       } on AuthException catch (e) {
         if (e.statusCode == "400") {
@@ -47,8 +40,6 @@ class _LoginPageState extends State<LoginPage> {
               );
             },
           );
-        } else {
-          print(e);
         }
       }
     } else {

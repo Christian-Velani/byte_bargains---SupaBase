@@ -1,8 +1,6 @@
 // ignore_for_file: must_be_immutable, use_key_in_widget_constructors
 
 import 'package:byte_bargains/styles.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -89,7 +87,8 @@ class JogoPequeno extends StatelessWidget {
           onTap: () => Navigator.of(context)
               .pushNamed('/Jogo', arguments: {"nomeJogo": nome}),
         ),
-        Text(nome, style: textoOpenSansRegularPequeno)
+        SizedBox(
+            width: 100, child: Text(nome, style: textoOpenSansRegularPequeno))
       ],
     );
   }
@@ -128,13 +127,15 @@ class _JogoPequenoHorizontalState extends State<JogoPequenoHorizontal> {
         final response = await supabase
             .from("Listas de Desejos")
             .insert({"idUsuario": user.id, "jogoId": jogo});
-        print(response);
+        Future.delayed(const Duration(seconds: 5));
+        return response;
       } else if (tipo == "remover") {
         final response = await supabase
             .from("Listas de Desejos")
             .delete()
-            .match({"idUsario": user.id, "jogoId": jogo});
-        print(response);
+            .match({"idUsuario": user.id, "jogoId": jogo});
+        Future.delayed(const Duration(seconds: 5));
+        return response;
       }
     }
 
@@ -159,12 +160,12 @@ class _JogoPequenoHorizontalState extends State<JogoPequenoHorizontal> {
             onTap: () => Navigator.of(context)
                 .pushNamed('/Jogo', arguments: {"nomeJogo": widget.nome}),
           ),
-          RichText(
-            text: TextSpan(
-              text: widget.nome,
-              style: textoOpenSansSemiBold,
-            ),
-          ),
+          SizedBox(
+              width: 250,
+              child: Text(
+                widget.nome,
+                style: textoOpenSansSemiBold,
+              )),
           const Spacer(),
           IconButton(
             alignment: Alignment.centerRight,
@@ -172,10 +173,12 @@ class _JogoPequenoHorizontalState extends State<JogoPequenoHorizontal> {
               if (icone == Icons.favorite_outline) {
                 icone = Icons.favorite;
                 cor = Colors.blue;
+                widget.listaDesejos.add(widget.nome);
                 atualizarListaDesejos("adicionar", widget.nome);
               } else {
                 icone = Icons.favorite_outline;
                 cor = Colors.grey;
+                widget.listaDesejos.remove(widget.nome);
                 atualizarListaDesejos("remover", widget.nome);
               }
               setState(() {});
@@ -210,7 +213,7 @@ class GeneroContainer extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 150,
+          height: 230,
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: jogos!
@@ -225,12 +228,12 @@ class GeneroContainer extends StatelessWidget {
 
 class LojaPreco extends StatelessWidget {
   String nomeLoja;
-  double preco;
+  String preco;
   Estado estado;
-  double precoDesconto;
+  String precoDesconto;
 
   LojaPreco(this.nomeLoja, this.preco, this.estado,
-      {this.precoDesconto = 0.00});
+      {this.precoDesconto = "0.00"});
 
   @override
   Widget build(BuildContext context) {
